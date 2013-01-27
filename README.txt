@@ -1,23 +1,38 @@
-CMU ARK Twitter Part-of-Speech Tagger v0.3
-http://www.ark.cs.cmu.edu/TweetNLP/
+HARK Tweet v0.3.2.1
 
-Basic usage
+This is the distributed version of CMU ARK Twitter Part-of-Speech Tagger v0.3.2 in Hadoop setting. HARK
+stands for (Hadoop-based)ARK :)
+
+More details about the tool is at https://github.com/brendano/ark-tweet-nlp/. Explanation on the algorithms
+and related research is at http://www.ark.cs.cmu.edu/TweetNLP/. 
+
+
+(Updated 28.01.2013: I am refactoring the code and will commit the stable version soon. Stay tuned guys !!)
+
+
+Centralized setting (derived from original repository at https://github.com/brendano/ark-tweet-nlp):
 ===========
 
 Requires Java 6.  To run the tagger from a unix shell:
 
-    ./runTagger.sh examples/example_tweets.txt
+    ./scripts/runTagger.sh examples/example_tweets.txt
 
 The tagger outputs tokens, predicted part-of-speech tags, and confidences.
 See:
 
-    ./runTagger.sh --help
+    ./scripts/runTagger.sh --help
 
 We also include a script that invokes just the tokenizer:
 
-    ./twokenize.sh examples/example_tweets.txt
+    ./scripts/twokenize.sh examples/example_tweets.txt
 
 You may have to adjust the parameters to "java" depending on your system.
+
+
+Distributed setting
+==========
+.. (to be updated)
+
 
 Information
 ===========
@@ -44,8 +59,3 @@ Olutobi Owoputi, Brendan O'Connor, Chris Dyer, Kevin Gimpel, and
   Nathan Schneider.
 Technical Report, Machine Learning Department. CMU-ML-12-107. September 2012.
 
-Contact
-=======
-
-Please contact Brendan O'Connor (brenocon@cs.cmu.edu) and Kevin Gimpel
-(kgimpel@cs.cmu.edu) if you encounter any problems.
