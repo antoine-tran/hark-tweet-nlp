@@ -29,21 +29,9 @@ public class MetaphoneFeatures {
 		} 
 		return dblmetaphone;
 	};
-	private String MetaphoneNum(String str){ //change this eventually
-		StringBuilder sb = new StringBuilder(str);
-		if (str.charAt(str.length()-1)=='1')
-			sb.deleteCharAt(str.length()-1).append("one");
-		if (str.charAt(0)=='1')
-			sb.deleteCharAt(0).insert(0, "one");
-		if (str.charAt(0)=='2')
-			sb.deleteCharAt(0).insert(0, "two");
-		else if(str.charAt(0)=='4')
-			sb.deleteCharAt(0).insert(0, "four");
-		return sb.toString();
-	}
 	
-
 	public static class MetaphoneLexical implements FeatureExtractorInterface{
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);

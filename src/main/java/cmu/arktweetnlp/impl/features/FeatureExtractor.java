@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import tuan.collections.IntDoublePair;
+
 import cmu.arktweetnlp.impl.Model;
 import cmu.arktweetnlp.impl.ModelSentence;
 import cmu.arktweetnlp.impl.Sentence;
 import cmu.arktweetnlp.util.Util;
-import edu.stanford.nlp.util.Pair;
 
 /**
  * Extracts features and numberizes them
@@ -84,14 +85,14 @@ public class FeatureExtractor {
 				continue;
 			}
 			double fValue = pairs.featureValues.get(i);
-			modelSentence.observationFeatures.get(t).add(new Pair<Integer,Double>(fID, fValue));
+			modelSentence.observationFeatures.get(t).add(new IntDoublePair(fID, fValue));
 		}
 		if (dumpMode) {
 			Util.p("");
 			for (int t=0; t < sentence.T(); t++) {
 				System.out.printf("%s\n\t", sentence.tokens.get(t));
-				for (Pair<Integer,Double> fv : modelSentence.observationFeatures.get(t)) {
-					System.out.printf("%s ", model.featureVocab.name(fv.first));
+				for (IntDoublePair fv : modelSentence.observationFeatures.get(t)) {
+					System.out.printf("%s ", model.featureVocab.name(fv.first()));
 				}
 				System.out.printf("\n");
 			}

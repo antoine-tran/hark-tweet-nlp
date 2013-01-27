@@ -17,6 +17,7 @@ public class WordListFeatures {
 	public static class POSTagDict implements FeatureExtractorInterface {
 		Pattern URL = Pattern.compile(Twokenize.url);
 		Pattern letter = Pattern.compile("[A-Za-z]{3,}");
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);
@@ -63,6 +64,7 @@ public class WordListFeatures {
 			Listname=str;
 			this.members = initDict(Listname);
 		}
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);
@@ -75,6 +77,7 @@ public class WordListFeatures {
 	}
 
 	public static class MetaphonePOSDict implements FeatureExtractorInterface {
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);

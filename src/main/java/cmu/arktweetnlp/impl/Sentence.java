@@ -21,6 +21,7 @@ public class Sentence {
 		return tokens.size();
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[ ");

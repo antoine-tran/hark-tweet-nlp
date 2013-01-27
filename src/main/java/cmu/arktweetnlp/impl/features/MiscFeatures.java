@@ -11,6 +11,7 @@ import cmu.arktweetnlp.impl.features.FeatureExtractor.PositionFeaturePairs;
 public class MiscFeatures {
 	
 	public static class NextWord implements FeatureExtractorInterface{
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			ArrayList<String> normtoks = FeatureUtil.normalize(tokens);
 			for (int t=0; t < tokens.size()-1; t++) {
@@ -23,6 +24,7 @@ public class MiscFeatures {
 		}
 	}
 	public static class Next2Words implements FeatureExtractorInterface{
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			if (tokens.size()>1){
 				ArrayList<String> normtoks = FeatureUtil.normalize(tokens);
@@ -37,6 +39,7 @@ public class MiscFeatures {
 		}
 	}
 	public static class PrevWord implements FeatureExtractorInterface{
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			ArrayList<String> normtoks = FeatureUtil.normalize(tokens);
 			pairs.add(0, "prevword|<START>");
@@ -50,6 +53,7 @@ public class MiscFeatures {
 		}
 	}
 	public static class Prev2Words implements FeatureExtractorInterface{
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) { 	
 			if (tokens.size()>1){
 				ArrayList<String> normtoks = FeatureUtil.normalize(tokens);
@@ -62,6 +66,7 @@ public class MiscFeatures {
 		}
 	}
 	public static class PrevNext implements FeatureExtractorInterface{
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			ArrayList<String> normtoks = FeatureUtil.normalize(tokens);
 			if (tokens.size()>1){
@@ -78,6 +83,7 @@ public class MiscFeatures {
 	}
 
 	public static class CapitalizationFeatures implements FeatureExtractorInterface {	
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);
@@ -122,6 +128,7 @@ public class MiscFeatures {
 		//Pattern allPunct = Pattern.compile("^[^a-zA-Z0-9]*$");
 		Pattern allPunct = Pattern.compile("^\\W*$");
 		Pattern emoticon = Pattern.compile(Twokenize.emoticon);
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);
@@ -156,6 +163,7 @@ public class MiscFeatures {
 	public static class URLFeatures implements FeatureExtractorInterface {	
 		Pattern validURL = Pattern.compile(Twokenize.url);
 		Pattern validEmail = Pattern.compile(Twokenize.Email);
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);
@@ -169,6 +177,7 @@ public class MiscFeatures {
 		}
 	}
 	public static class WordformFeatures implements FeatureExtractorInterface {
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = tokens.get(t);
@@ -197,6 +206,7 @@ public class MiscFeatures {
 		public NgramPrefix(int i) {
 			ngram=i;
 		}
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = FeatureUtil.normalize(tokens.get(t).replaceAll("[‘’´`]", "'").replaceAll("[“”]", "\""));
@@ -215,6 +225,7 @@ public class MiscFeatures {
 		public NgramSuffix(int i) {
 			ngram=i;
 		}
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < tokens.size(); t++) {
 				String tok = FeatureUtil.normalize(tokens.get(t).replaceAll("[‘’´`]", "'").replaceAll("[“”]", "\""));
@@ -231,6 +242,7 @@ public class MiscFeatures {
 		}    
 	}
 	public static class Positions implements FeatureExtractorInterface {	
+		@Override
 		public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 			for (int t=0; t < Math.min(tokens.size(), 4); t++) {
 				pairs.add(t, "t="+t);

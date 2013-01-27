@@ -10,7 +10,6 @@ import cmu.arktweetnlp.impl.Sentence;
 import cmu.arktweetnlp.impl.OWLQN.WeightsPrinter;
 import cmu.arktweetnlp.impl.features.FeatureExtractor;
 import cmu.arktweetnlp.io.CoNLLReader;
-import cmu.arktweetnlp.util.Util;
 import edu.stanford.nlp.math.ArrayMath;
 import edu.stanford.nlp.optimization.DiffFunction;
 

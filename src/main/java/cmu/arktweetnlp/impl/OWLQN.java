@@ -68,6 +68,7 @@ public class OWLQN {
 			this.prevVals = new LinkedList<Double>();
 		}
 
+		@Override
 		public double getValue(OptimizerState state, StringBuilder out) {
 
 			double retVal = Double.POSITIVE_INFINITY;
@@ -340,36 +341,6 @@ class OptimizerState {
 
 	boolean quiet;
 	
-	//mheilman: I added this for debugging
-	private String arrayToString(double [] arr){
-		String res = "";
-		for(int i=0; i<arr.length; i++){
-			if(i>0) res += "\t";
-			res += arr[i];
-		}
-		return res;
-	}
-	
-	//mheilman: I added this for debugging the updateDir() method.
-	private void printStateValues() {
-		System.err.println("\nSLIST:");
-		for(int i=0; i<sList.size(); i++){
-			System.err.println(arrayToString(sList.get(i)));
-		}
-		
-		System.err.println("YLIST:");
-		for(int i=0; i<yList.size(); i++){
-			System.err.println(arrayToString(yList.get(i)));
-		}
-		
-		System.err.println("ROLIST:");
-		for(int i=0; i<roList.size(); i++){
-			System.err.println(roList.get(i));
-		}
-		System.err.println();
-	}
-	
-
 	void mapDirByInverseHessian() {
 		int count = sList.size();
 

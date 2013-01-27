@@ -4,9 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
-
-import cmu.arktweetnlp.Twokenize;
 import cmu.arktweetnlp.impl.features.FeatureExtractor.FeatureExtractorInterface;
 import cmu.arktweetnlp.impl.features.FeatureExtractor.PositionFeaturePairs;
 import cmu.arktweetnlp.util.BasicFileIO;
@@ -38,6 +35,7 @@ public class WordClusterPaths implements FeatureExtractorInterface {
 //		log.info("Finished loading clusters");
 	}
 	
+	@Override
 	public void addFeatures(List<String> tokens, PositionFeaturePairs pairs) {
 		String bitstring = null;
 		for (int t=0; t < tokens.size(); t++) {

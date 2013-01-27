@@ -44,7 +44,7 @@ public class TagDictionary {
                 }
                 String word = parts[0];
                 String poses = parts[1].trim();
-                ArrayList<String> arr = new ArrayList(); //new String[poses.length()];
+                ArrayList<String> arr = new ArrayList<String>(); //new String[poses.length()];
                 for (int i=0; i < poses.length(); i++) {
                     arr.add(poses.substring(i,i+1));
                 }

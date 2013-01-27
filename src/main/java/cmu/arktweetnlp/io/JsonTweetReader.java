@@ -1,11 +1,6 @@
 package cmu.arktweetnlp.io;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Iterator;
-
-import cmu.arktweetnlp.util.BasicFileIO;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,14 +42,12 @@ public class JsonTweetReader  {
 		return textValue.asText();
 	}
 	
-	public boolean isJson(String isThisJson) {
-		JsonNode rootNode; 
-		
+	public boolean isJson(String isThisJson) {		
 		if (isThisJson.charAt(0) != '{')
 			return false;
 		
 		try {
-			rootNode = mapper.readValue(isThisJson, JsonNode.class);
+			mapper.readValue(isThisJson, JsonNode.class);
 		} catch (JsonParseException e) {
 			return false;
 		} catch (IOException e) {
@@ -62,7 +55,6 @@ public class JsonTweetReader  {
 			return false;
 		}
 		return true;
-		
 	}
 
 }

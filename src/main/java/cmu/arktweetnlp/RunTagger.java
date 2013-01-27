@@ -1,17 +1,14 @@
 package cmu.arktweetnlp;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.List;
 
 import cmu.arktweetnlp.impl.ModelSentence;
 import cmu.arktweetnlp.impl.Sentence;
-import cmu.arktweetnlp.impl.features.FeatureExtractor;
 import cmu.arktweetnlp.impl.features.WordClusterPaths;
 import cmu.arktweetnlp.io.CoNLLReader;
 import cmu.arktweetnlp.io.JsonTweetReader;
@@ -161,7 +158,7 @@ public class RunTagger {
 		List<Sentence> examples = CoNLLReader.readFile(inputFilename); 
 		inputIterable = examples;
 
-		int[][] confusion = new int[tagger.model.numLabels][tagger.model.numLabels];
+		//int[][] confusion = new int[tagger.model.numLabels][tagger.model.numLabels];
 		
 		for (Sentence sentence : examples) {
 			n++;
@@ -183,7 +180,7 @@ public class RunTagger {
 				numTokensCorrect*1.0 / numTokens,
 				1 - (numTokensCorrect*1.0 / numTokens)
 		);
-		double elapsed = ((double) (System.currentTimeMillis() - t0)) / 1000.0;
+		double elapsed = (System.currentTimeMillis() - t0) / 1000.0;
 		System.err.printf("%d tweets in %.1f seconds, %.1f tweets/sec\n",
 				n, elapsed, n*1.0/elapsed);
 		
@@ -200,7 +197,7 @@ public class RunTagger {
 		}		*/
 	}
 	
-	private void evaluateOOV(Sentence lSent, ModelSentence mSent) throws FileNotFoundException, IOException, ClassNotFoundException {
+	/*private void evaluateOOV(Sentence lSent, ModelSentence mSent) throws IOException, ClassNotFoundException {
 		for (int t=0; t < mSent.T; t++) {
 			int trueLabel = tagger.model.labelVocab.num(lSent.labels.get(t));
 			int predLabel = mSent.labels[t];
@@ -219,7 +216,7 @@ public class RunTagger {
 		}
 		
 		
-    }
+    }*/
 	public void evaluateSentenceTagging(Sentence lSent, ModelSentence mSent) {
 		for (int t=0; t < mSent.T; t++) {
 			int trueLabel = tagger.model.labelVocab.num(lSent.labels.get(t));

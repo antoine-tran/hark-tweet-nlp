@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * Twokenize -- a tokenizer designed for Twitter text in English and some other European languages.
@@ -289,7 +289,7 @@ public class Twokenize {
     }
 
     // Final pass tokenization based on special patterns
-    private static List<String> splitToken (String token) {
+    /*private static List<String> splitToken (String token) {
 
         Matcher m = Contractions.matcher(token);
         if (m.find()){
@@ -298,7 +298,7 @@ public class Twokenize {
         }
         String[] contract = {token};
         return Arrays.asList(contract);
-    }
+    }*/
 
     /** Assume 'text' has no HTML escaping. **/
     public static List<String> tokenize(String text){
@@ -312,7 +312,7 @@ public class Twokenize {
      */
     public static String normalizeTextForTagger(String text) {
     	text = text.replaceAll("&amp;", "&");
-    	text = StringEscapeUtils.unescapeHtml(text);
+    	text = StringEscapeUtils.unescapeHtml4(text);
     	return text;
     }
 

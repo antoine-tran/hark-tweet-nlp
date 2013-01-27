@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import cmu.arktweetnlp.util.BasicFileIO;
-import edu.berkeley.nlp.util.ArrayUtil;
-import edu.berkeley.nlp.util.Triple;
 import edu.stanford.nlp.math.ArrayMath;
-import edu.stanford.nlp.util.Pair;
+import edu.stanford.nlp.util.ArrayUtils;
+import edu.stanford.nlp.util.Triple;
+import tuan.collections.IntDoublePair;
 
 /**
  * This contains
@@ -81,8 +81,8 @@ public class Model {
 			// start in log space
 			computeLabelScores(t, sentence, labelScores);
 			// switch to exp space
-			ArrayUtil.expInPlace(labelScores);
-			double Z = ArrayUtil.sum(labelScores);
+			ArrayUtils.expInPlace(labelScores);
+			double Z = ArrayUtils.sum(labelScores);
 
 			for (int k=0; k<numLabels; k++) {
 				posterior[t][k] = labelScores[k] / Z;
@@ -143,7 +143,7 @@ public class Model {
 		double[][] vit = new double[T][numLabels];
 		double[] labelScores = new double[numLabels];
 		computeVitLabelScores(0, startMarker(), sentence, labelScores);
-		ArrayUtil.logNormalize(labelScores);
+		ArrayUtils.logNormalize(labelScores);
 		//initialization
 		vit[0]=labelScores;
 		for (int k=0; k < numLabels; k++){
@@ -153,17 +153,17 @@ public class Model {
 			double[][] prevcurr = new double[numLabels][numLabels];
 			for (int s=0; s < numLabels; s++){
 				computeVitLabelScores(t, s, sentence, prevcurr[s]);
-				ArrayUtil.logNormalize(prevcurr[s]);
-				prevcurr[s] = ArrayUtil.add(prevcurr[s], labelScores[s]);
+				ArrayUtils.logNormalize(prevcurr[s]);
+				prevcurr[s] = ArrayUtils.add(prevcurr[s], labelScores[s]);
 			}
 			for (int s=0; s < numLabels; s++){
 				double[] sprobs = getColumn(prevcurr, s);
-				bptr[t][s] = ArrayUtil.argmax(sprobs);
+				bptr[t][s] = ArrayUtils.argmax(sprobs);
 				vit[t][s] = sprobs[bptr[t][s]];	
 			}
 			labelScores=vit[t];
 		}
-		sentence.labels[T-1] = ArrayUtil.argmax(vit[T-1]);
+		sentence.labels[T-1] = ArrayUtils.argmax(vit[T-1]);
 		//System.out.print(labelVocab.name(sentence.labels[T-1]));
 		//System.out.println(" with prob: "+Math.exp(vit[T-1][sentence.labels[T-1]]));
 		int backtrace = bptr[T-1][sentence.labels[T-1]];
@@ -231,9 +231,9 @@ public class Model {
 	public void computeObservedFeatureScores(int t, ModelSentence sentence, double[] labelScores) {
 		for (int k=0; k < numLabels; k++) {
 			//    		for (int obsFeat : sentence.observationFeatures.get(t)) {
-			for (Pair<Integer,Double> pair : sentence.observationFeatures.get(t)) {
+			for (IntDoublePair pair : sentence.observationFeatures.get(t)) {
 				//    			labelScores[k] += observationFeatureCoefs[obsFeat][k];
-				labelScores[k] += observationFeatureCoefs[pair.first][k] * pair.second;
+				labelScores[k] += observationFeatureCoefs[pair.first()][k] * pair.second();
 			}
 		}
 	}
@@ -266,8 +266,8 @@ public class Model {
 				int empir = y==k ? 1 : 0;
 				grad[biasFeature_to_flatID(k)]                      += empir - p;
 				grad[edgeFeature_to_flatID(prevLabel, k)]           += empir - p;
-				for (Pair<Integer,Double> fv : sentence.observationFeatures.get(t)) {
-					grad[observationFeature_to_flatID(fv.first, k)] += (empir - p) * fv.second;
+				for (IntDoublePair fv : sentence.observationFeatures.get(t)) {
+					grad[observationFeature_to_flatID(fv.first(), k)] += (empir - p) * fv.second();
 				}
 			}
 		}
@@ -431,13 +431,13 @@ public class Model {
 			String[] edgePair = parts[1].split(" ");
 			int prev = Integer.parseInt(edgePair[0]);
 			int cur  = Integer.parseInt(edgePair[1]);
-			edgeCoefs.add(new Triple(prev, cur, Double.parseDouble(parts[2])));
+			edgeCoefs.add(new Triple<Integer, Integer, Double>(prev, cur, Double.parseDouble(parts[2])));
 		} while ( (line = reader.readLine()) != null );
 		do {
 			String[] parts = line.split("\t");
 			int f = model.featureVocab.num(parts[0]);
 			int k = model.labelVocab.num(parts[1]);
-			obsCoefs.add(new Triple(f, k, Double.parseDouble(parts[2])));
+			obsCoefs.add(new Triple<Integer, Integer, Double>(f, k, Double.parseDouble(parts[2])));
 		} while ( (line = reader.readLine()) != null );
 		model.featureVocab.lock();
 
@@ -447,10 +447,10 @@ public class Model {
 			model.biasCoefs[k] = biasCoefs.get(k);
 		}
 		for (Triple<Integer,Integer,Double> x : edgeCoefs) {
-			model.edgeCoefs[x.getFirst()][x.getSecond()] = x.getThird();
+			model.edgeCoefs[x.first()][x.second()] = x.third();
 		}
 		for (Triple<Integer,Integer,Double> x : obsCoefs) {
-			model.observationFeatureCoefs[x.getFirst()][x.getSecond()] = x.getThird();
+			model.observationFeatureCoefs[x.first()][x.second()] = x.third();
 		}
 		reader.close();
 		return model;
@@ -472,15 +472,15 @@ public class Model {
 			}
 		}
 
-		destModel.biasCoefs = ArrayUtil.copy(sourceModel.biasCoefs);
-		destModel.edgeCoefs = ArrayUtil.copy(sourceModel.edgeCoefs);
+		destModel.biasCoefs = ArrayUtils.copy(sourceModel.biasCoefs);
+		destModel.edgeCoefs = ArrayUtils.copy(sourceModel.edgeCoefs);
 
 		// observation features need the intersection
 		for (int sourceFeatID=0; sourceFeatID < sourceModel.featureVocab.size(); sourceFeatID++) {
 			String featName = sourceModel.featureVocab.name(sourceFeatID);
 			if (destModel.featureVocab.contains(featName)) {
 				int destFeatID = destModel.featureVocab.num(featName);
-				destModel.observationFeatureCoefs[destFeatID] = ArrayUtil.copy(
+				destModel.observationFeatureCoefs[destFeatID] = ArrayUtils.copy(
 						sourceModel.observationFeatureCoefs[sourceFeatID] );
 			}
 		}

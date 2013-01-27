@@ -3,7 +3,7 @@ package cmu.arktweetnlp.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import edu.stanford.nlp.util.Pair;
+import tuan.collections.IntDoublePair;
 
 /**
  * One sequence structure -- typically, for one sentence
@@ -23,7 +23,7 @@ public class ModelSentence {
 	 * This is an array-of-arrays of (featID, featValue) pairs.
 	 * dim T, then variable nnz per t.
 	 **/
-	public ArrayList<ArrayList< Pair<Integer, Double>>> observationFeatures;
+	public ArrayList<ArrayList<IntDoublePair>> observationFeatures;
 
 	/** Runtime observed, Trainingtime observed (for MEMM).
 	 * dim T st: edgeFeatures[t] = ID of label@(t-1).
@@ -35,9 +35,9 @@ public class ModelSentence {
 		this.T = T;
 		labels = new int[T];
 		edgeFeatures = new int[T];
-		observationFeatures = new ArrayList<ArrayList< Pair<Integer, Double> >>();
+		observationFeatures = new ArrayList<ArrayList< IntDoublePair >>();
 		for (int t=0; t<T; t++) {
-			observationFeatures.add( new ArrayList<Pair<Integer,Double>>() );
+			observationFeatures.add( new ArrayList<IntDoublePair>() );
 		}
 		Arrays.fill(labels, -1);
 		Arrays.fill(edgeFeatures, -1);
