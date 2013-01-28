@@ -2,10 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.cmu.cs</groupId>
-    <artifactId>dark-tweet-nlp</artifactId>
+    <artifactId>hark-tweet-nlp</artifactId>
     <packaging>jar</packaging>
     <version>0.3.2.1</version>
-    <name>CMU ARK TweetNLP: Customized Twitter POS tagger</name>
+    <name>HARK TweetNLP: Customized Twitter POS tagger</name>
     <description>Customized POS tagger from CMU Ark Tweek NLP</description>
     <url>http://www.ark.cs.cmu.edu/TweetNLP/</url>
     <properties>
@@ -113,6 +113,11 @@
         <repository>
             <id>twitter</id>
             <url>http://maven.twttr.com/</url>
+        </repository>
+        <repository>
+            <id>antoine-tran-github-releases</id>
+            <name>Tuan Tran's Personal Repository for Maven</name>
+            <url>https://raw.github.com/antoine-tran/maven-repo/master/releases</url>
         </repository>
     </repositories>
     

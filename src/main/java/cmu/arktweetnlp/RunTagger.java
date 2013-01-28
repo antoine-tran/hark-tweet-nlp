@@ -30,6 +30,7 @@ public class RunTagger {
 	int inputField = 1;
 	
 	String inputFilename;
+	
 	/** Can be either filename or resource name **/
 	String modelFilename = "/cmu/arktweetnlp/model.20120919";
 
