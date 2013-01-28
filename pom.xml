@@ -32,7 +32,8 @@
 		</testResources>   
 		
 		<plugins>
-             <plugin>
+            <!-- 
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
 				<version>1.7</version>
@@ -50,14 +51,20 @@
                     </configuration>
                   </execution>
                 </executions>
-            </plugin>		
+            </plugin>
+            -->		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>1.6</version>
-				<executions>
+				
+				<!-- Different configurations for different deployment scenarios -->
+				<executions>				    
+				
+				    <!-- Configuration 1: centralized scenario
 					<execution>
 						<phase>package</phase>
+						<id>shade-centralized</id>
 						<goals>
 							<goal>shade</goal>
 						</goals>
@@ -65,6 +72,22 @@
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>cmu.arktweetnlp.RunTagger</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution> -->
+					
+					 <!-- Configuration 2: Hadoop-based scenario where input is plain-text --> 
+					<execution>
+						<phase>package</phase>
+						<id>shade-hadoop</id>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>cmu.arktweetnlp.NLineTagger</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
