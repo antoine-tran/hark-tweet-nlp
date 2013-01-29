@@ -18,6 +18,7 @@ import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import cmu.arktweetnlp.Tagger.TaggedToken;
@@ -93,6 +94,7 @@ public class NLineTagger extends Configured implements Tool {
 		String format = null;
 		String outputFile = null;
 		int reduceNo = 0;
+		int linesPerMap = 15771;
 		
 		if (args.length == 1) {
 			inputFile = args[0]; 
@@ -104,20 +106,28 @@ public class NLineTagger extends Configured implements Tool {
 		else if (args.length == 3) {
 			inputFile = args[0];
 			outputFile = args[1];
-			modelFile = args[2];
+			linesPerMap = Integer.parseInt(args[2]);
 		}
 		else if (args.length == 4) {
 			inputFile = args[0];
 			outputFile = args[1];
-			modelFile = args[2];
-			format = args[3];
+			linesPerMap = Integer.parseInt(args[2]);
+			modelFile = args[3];
 		}
 		else if (args.length == 5) {
 			inputFile = args[0];
 			outputFile = args[1];
-			modelFile = args[2];
-			format = args[3];
-			reduceNo = Integer.parseInt(args[4]);
+			linesPerMap = Integer.parseInt(args[2]);
+			modelFile = args[3];
+			format = args[4];
+		}
+		else if (args.length == 6) {
+			inputFile = args[0];
+			outputFile = args[1];
+			linesPerMap = Integer.parseInt(args[2]);
+			modelFile = args[3];
+			format = args[4];
+			reduceNo = Integer.parseInt(args[5]);
 		}
 		else throw new Exception("Bad arguments");
 		
@@ -127,7 +137,8 @@ public class NLineTagger extends Configured implements Tool {
 		
 		job.setJarByClass(NLineTagger.class);
 		job.setNumReduceTasks(reduceNo);
-			
+		job.getConfiguration().setInt("mapreduce.input.lineinputformat.linespermap", linesPerMap);
+		
 		FileInputFormat.setInputPaths(job, new Path(inputFile));
 		FileOutputFormat.setOutputPath(job, new Path(outputFile));
 		
@@ -145,5 +156,16 @@ public class NLineTagger extends Configured implements Tool {
 		
 		job.waitForCompletion(true);
 		return 0;
+	}
+	
+	public static void main(String[] args) {
+		int res = 0;
+		try {
+			res = ToolRunner.run(new Configuration(), new NLineTagger(), args);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			System.exit(res);
+		}
 	}
 }
