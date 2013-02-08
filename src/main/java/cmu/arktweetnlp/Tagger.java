@@ -71,13 +71,13 @@ public class Tagger {
 		}
 
 		return taggedTokens;
-	}
+	} 
 
 	/**
 	 * Illustrate how to load and call the POS tagger.
 	 * This main() is not intended for serious use; see RunTagger.java for that.
 	 **/
-	public static void main(String[] args) throws IOException {
+	/* public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
 			System.out.println("Supply the model filename as first argument.");
 		}
@@ -92,6 +92,6 @@ public class Tagger {
 		for (TaggedToken token : taggedTokens) {
 			System.out.printf("%s\t%s\n", token.tag, token.token);
 		}
-	}
+	} */
 
 }

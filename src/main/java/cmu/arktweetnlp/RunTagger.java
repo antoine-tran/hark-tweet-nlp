@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import cmu.arktweetnlp.impl.ModelSentence;
 import cmu.arktweetnlp.impl.Sentence;
@@ -23,27 +24,27 @@ import edu.stanford.nlp.util.StringUtils;
  */
 public class RunTagger {
 	Tagger tagger;
-	
+
 	// Commandline I/O-ish options
 	String inputFormat = "auto";
 	String outputFormat = "auto";
 	int inputField = 1;
-	
+
 	String inputFilename;
-	
+
 	/** Can be either filename or resource name **/
 	String modelFilename = "/cmu/arktweetnlp/model.20120919";
 
 	public boolean noOutput = false;
 	public boolean justTokenize = false;
-	
+
 	public static enum Decoder { GREEDY, VITERBI };
 	public Decoder decoder = Decoder.GREEDY; 
 	public boolean showConfidence = true;
 
 	PrintStream outputStream;
 	Iterable<Sentence> inputIterable = null;
-	
+
 	// Evaluation stuff
 	private static HashSet<String> _wordsInCluster;
 	// Only for evaluation mode (conll inputs)
@@ -53,15 +54,15 @@ public class RunTagger {
 	int oovTokens = 0;
 	int clusterTokensCorrect = 0;
 	int clusterTokens = 0;
-	
+
 	public static void die(String message) {
 		// (BTO) I like "assert false" but assertions are disabled by default in java
 		System.err.println(message);
 		System.exit(-1);
 	}
-	public RunTagger() throws UnsupportedEncodingException {
+	public RunTagger() {
 		// force UTF-8 here, so don't need -Dfile.encoding
-		this.outputStream = new PrintStream(System.out, true, "UTF-8");
+		this.outputStream = System.out;
 	}
 	public void detectAndSetInputFormat(String tweetData) throws IOException {
 		JsonTweetReader jsonTweetReader = new JsonTweetReader();
@@ -73,21 +74,21 @@ public class RunTagger {
 			inputFormat = "text";
 		}
 	}
-	
+
 	public void runTagger() throws IOException, ClassNotFoundException {
-		
+
 		tagger = new Tagger();
 		if (!justTokenize) {
 			tagger.loadModel(modelFilename);			
 		}
-		
+
 		if (inputFormat.equals("conll")) {
 			runTaggerInEvalMode();
 			return;
 		} 
 
 		JsonTweetReader jsonTweetReader = new JsonTweetReader();
-		
+
 		LineNumberReader reader = new LineNumberReader(BasicFileIO.openFileToReadUTF8(inputFilename));
 		String line;
 		long currenttime = System.currentTimeMillis();
@@ -95,13 +96,13 @@ public class RunTagger {
 		while ( (line = reader.readLine()) != null) {
 			String[] parts = line.split("\t");
 			String tweetData = parts[inputField-1];
-			
+
 			if (reader.getLineNumber()==1) {
 				if (inputFormat.equals("auto")) {
 					detectAndSetInputFormat(tweetData);
 				}
 			}
-			
+
 			String text;
 			if (inputFormat.equals("json")) {
 				text = jsonTweetReader.getText(tweetData);
@@ -112,9 +113,9 @@ public class RunTagger {
 			} else {
 				text = tweetData;
 			}
-			
+
 			Sentence sentence = new Sentence();
-			
+
 			sentence.tokens = Twokenize.tokenizeRawTweetText(text);
 			ModelSentence modelSentence = null;
 
@@ -123,7 +124,7 @@ public class RunTagger {
 				tagger.featureExtractor.computeFeatures(sentence, modelSentence);
 				goDecode(modelSentence);
 			}
-				
+
 			if (outputFormat.equals("conll")) {
 				outputJustTagging(sentence, modelSentence);
 			} else {
@@ -134,10 +135,10 @@ public class RunTagger {
 		long finishtime = System.currentTimeMillis();
 		System.err.printf("Tokenized%s %d tweets (%d tokens) in %.1f seconds: %.1f tweets/sec, %.1f tokens/sec\n",
 				justTokenize ? "" : " and tagged", 
-				reader.getLineNumber(), numtoks, (finishtime-currenttime)/1000.0,
-				reader.getLineNumber() / ((finishtime-currenttime)/1000.0),
-				numtoks / ((finishtime-currenttime)/1000.0)
-		);
+						reader.getLineNumber(), numtoks, (finishtime-currenttime)/1000.0,
+						reader.getLineNumber() / ((finishtime-currenttime)/1000.0),
+						numtoks / ((finishtime-currenttime)/1000.0)
+				);
 		reader.close();
 	}
 
@@ -146,13 +147,13 @@ public class RunTagger {
 		if (decoder == Decoder.GREEDY) {
 			tagger.model.greedyDecode(mSent, showConfidence);
 		} else if (decoder == Decoder.VITERBI) {
-//			if (showConfidence) throw new RuntimeException("--confidence only works with greedy decoder right now, sorry, yes this is a lame limitation");
+			//			if (showConfidence) throw new RuntimeException("--confidence only works with greedy decoder right now, sorry, yes this is a lame limitation");
 			tagger.model.viterbiDecode(mSent);
 		}		
 	}
-	
+
 	public void runTaggerInEvalMode() throws IOException, ClassNotFoundException {
-		
+
 		long t0 = System.currentTimeMillis();
 		int n=0;
 
@@ -160,14 +161,14 @@ public class RunTagger {
 		inputIterable = examples;
 
 		//int[][] confusion = new int[tagger.model.numLabels][tagger.model.numLabels];
-		
+
 		for (Sentence sentence : examples) {
 			n++;
-			
+
 			ModelSentence mSent = new ModelSentence(sentence.T());
 			tagger.featureExtractor.computeFeatures(sentence, mSent);
 			goDecode(mSent);
-			
+
 			if ( ! noOutput) {
 				outputJustTagging(sentence, mSent);	
 			}
@@ -180,24 +181,24 @@ public class RunTagger {
 				numTokensCorrect, numTokens,
 				numTokensCorrect*1.0 / numTokens,
 				1 - (numTokensCorrect*1.0 / numTokens)
-		);
+				);
 		double elapsed = (System.currentTimeMillis() - t0) / 1000.0;
 		System.err.printf("%d tweets in %.1f seconds, %.1f tweets/sec\n",
 				n, elapsed, n*1.0/elapsed);
-		
-/*		System.err.printf("%d / %d cluster words correct = %.4f acc, %.4f err\n", 
+
+		/*		System.err.printf("%d / %d cluster words correct = %.4f acc, %.4f err\n", 
 				oovTokensCorrect, oovTokens,
 				oovTokensCorrect*1.0 / oovTokens,
 				1 - (oovTokensCorrect*1.0 / oovTokens)
 		);	*/
-/*		int i=0;
+		/*		int i=0;
 		System.out.println("\t"+tagger.model.labelVocab.toString().replaceAll(" ", ", "));
 		for (int[] row:confusion){
 			System.out.println(tagger.model.labelVocab.name(i)+"\t"+Arrays.toString(row));
 			i++;
 		}		*/
 	}
-	
+
 	/*private void evaluateOOV(Sentence lSent, ModelSentence mSent) throws IOException, ClassNotFoundException {
 		for (int t=0; t < mSent.T; t++) {
 			int trueLabel = tagger.model.labelVocab.num(lSent.labels.get(t));
@@ -215,8 +216,8 @@ public class RunTagger {
 			if(trueLabel!=-1)
 				confusion[trueLabel][predLabel]++;
 		}
-		
-		
+
+
     }*/
 	public void evaluateSentenceTagging(Sentence lSent, ModelSentence mSent) {
 		for (int t=0; t < mSent.T; t++) {
@@ -226,7 +227,7 @@ public class RunTagger {
 			numTokens += 1;
 		}
 	}
-	
+
 	private String formatConfidence(double confidence) {
 		// too many decimal places wastes space
 		return String.format("%.4f", confidence);
@@ -264,7 +265,7 @@ public class RunTagger {
 	public void outputPrependedTagging(Sentence lSent, ModelSentence mSent, 
 			boolean suppressTags, String inputLine) {
 		// mSent might be null!
-		
+
 		int T = lSent.T();
 		String[] tokens = new String[T];
 		String[] tags = new String[T];
@@ -278,7 +279,7 @@ public class RunTagger {
 				confs[t] = formatConfidence(mSent.confidences[t]);
 			}
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append(StringUtils.join(tokens));
 		sb.append("\t");
@@ -291,7 +292,7 @@ public class RunTagger {
 			sb.append("\t");
 		}
 		sb.append(inputLine);
-		
+
 		outputStream.println(sb.toString());
 	}
 
@@ -348,7 +349,7 @@ public class RunTagger {
 				usage();                
 			}
 		}
-		
+
 		if (args.length - i > 1) usage();
 		if (args.length == i || args[i].equals("-")) {
 			System.err.println("Listening on stdin for input.  (-h for help)");
@@ -356,13 +357,55 @@ public class RunTagger {
 		} else {
 			tagger.inputFilename = args[i];
 		}
-		
+
 		tagger.finalizeOptions();
-		
+
 		tagger.runTagger();		
 	}
-	
-	public void finalizeOptions() throws IOException {
+
+	public void finalizeOptions(Map<String, String> args) throws OptionException  {	
+		if (args.containsKey("--model")) {
+			modelFilename = args.get("--model");				
+		}
+		if (args.containsKey("--just-tokenize")) {
+			justTokenize = true;			
+		} 
+		if (args.containsKey("--decoder")) {
+			String v = args.get("--decoder");
+			if ("viterbi".equals(v)) decoder = Decoder.VITERBI;
+			else if ("greedy".equals(v))  decoder = Decoder.GREEDY;
+			else die("unknown decoder " + v);			
+		} 
+		if (args.containsKey("--quiet")) {
+			noOutput = true;			
+		} 
+		if (args.containsKey("--input-format")) {
+			String s = args.get("--input-format");
+			if (!(s.equals("json") || s.equals("text") || s.equals("conll")))
+				throw new OptionException("input format must be: json, text, or conll");
+			inputFormat = s;			
+		} 
+		if (args.containsKey("--output-format")) {
+			outputFormat = args.get("--output-format");			
+		}
+		if (args.containsKey("--input-field")) {
+			try {
+				inputField = Integer.parseInt(args.get("--input-field"));
+			} catch (NumberFormatException e) {
+				throw new OptionException("input-field value must be an integer");
+			}
+		} 
+		if (args.containsKey("word-clusters")) {
+			WordClusterPaths.clusterResourceName = args.get("word-clusters");			
+		} 
+		if (args.containsKey("no-confidence")) {
+			showConfidence = false;
+		}		
+		finalizeOptions();
+	}
+
+
+	public void finalizeOptions() {
 		if (outputFormat.equals("auto")) {
 			if (inputFormat.equals("conll")) {
 				outputFormat = "conll";
@@ -378,49 +421,49 @@ public class RunTagger {
 			showConfidence = false;
 		}
 	}
-	
+
 	public static void usage() {
 		usage(null);
 	}
 
 	public static void usage(String extra) {
 		System.out.println(
-"RunTagger [options] [ExamplesFilename]" +
-"\n  runs the CMU ARK Twitter tagger on tweets from ExamplesFilename, " +
-"\n  writing taggings to standard output. Listens on stdin if no input filename." +
-"\n\nOptions:" +
-"\n  --model <Filename>        Specify model filename. (Else use built-in.)" +
-"\n  --just-tokenize           Only run the tokenizer; no POS tags." +
-"\n  --quiet                   Quiet: no output" +
-"\n  --input-format <Format>   Default: auto" +
-"\n                            Options: json, text, conll" +
-"\n  --output-format <Format>  Default: automatically decide from input format." +
-"\n                            Options: pretsv, conll" +
-"\n  --input-field NUM         Default: 1" +
-"\n                            Which tab-separated field contains the input" +
-"\n                            (1-indexed, like unix 'cut')" +
-"\n                            Only for {json, text} input formats." +
-"\n  --word-clusters <File>    Alternate word clusters file (see FeatureExtractor)" +
-"\n  --no-confidence           Don't output confidence probabilities" +
-"\n  --decoder <Decoder>       Change the decoding algorithm (default: greedy)" +
-"\n" +
-"\nTweet-per-line input formats:" +
-"\n   json: Every input line has a JSON object containing the tweet," +
-"\n         as per the Streaming API. (The 'text' field is used.)" +
-"\n   text: Every input line has the text for one tweet." +
-"\nWe actually assume input lines are TSV and the tweet data is one field."+
-"\n(Therefore tab characters are not allowed in tweets." +
-"\nTwitter's own JSON formats guarantee this;" +
-"\nif you extract the text yourself, you must remove tabs and newlines.)" +
-"\nTweet-per-line output format is" +
-"\n   pretsv: Prepend the tokenization and tagging as new TSV fields, " +
-"\n           so the output includes a complete copy of the input." +
-"\nBy default, three TSV fields are prepended:" +
-"\n   Tokenization \\t POSTags \\t Confidences \\t (original data...)" +
-"\nThe tokenization and tags are parallel space-separated lists." +
-"\nThe 'conll' format is token-per-line, blank spaces separating tweets."+
-"\n");
-		
+				"RunTagger [options] [ExamplesFilename]" +
+						"\n  runs the CMU ARK Twitter tagger on tweets from ExamplesFilename, " +
+						"\n  writing taggings to standard output. Listens on stdin if no input filename." +
+						"\n\nOptions:" +
+						"\n  --model <Filename>        Specify model filename. (Else use built-in.)" +
+						"\n  --just-tokenize           Only run the tokenizer; no POS tags." +
+						"\n  --quiet                   Quiet: no output" +
+						"\n  --input-format <Format>   Default: auto" +
+						"\n                            Options: json, text, conll" +
+						"\n  --output-format <Format>  Default: automatically decide from input format." +
+						"\n                            Options: pretsv, conll" +
+						"\n  --input-field NUM         Default: 1" +
+						"\n                            Which tab-separated field contains the input" +
+						"\n                            (1-indexed, like unix 'cut')" +
+						"\n                            Only for {json, text} input formats." +
+						"\n  --word-clusters <File>    Alternate word clusters file (see FeatureExtractor)" +
+						"\n  --no-confidence           Don't output confidence probabilities" +
+						"\n  --decoder <Decoder>       Change the decoding algorithm (default: greedy)" +
+						"\n" +
+						"\nTweet-per-line input formats:" +
+						"\n   json: Every input line has a JSON object containing the tweet," +
+						"\n         as per the Streaming API. (The 'text' field is used.)" +
+						"\n   text: Every input line has the text for one tweet." +
+						"\nWe actually assume input lines are TSV and the tweet data is one field."+
+						"\n(Therefore tab characters are not allowed in tweets." +
+						"\nTwitter's own JSON formats guarantee this;" +
+						"\nif you extract the text yourself, you must remove tabs and newlines.)" +
+						"\nTweet-per-line output format is" +
+						"\n   pretsv: Prepend the tokenization and tagging as new TSV fields, " +
+						"\n           so the output includes a complete copy of the input." +
+						"\nBy default, three TSV fields are prepended:" +
+						"\n   Tokenization \\t POSTags \\t Confidences \\t (original data...)" +
+						"\nThe tokenization and tags are parallel space-separated lists." +
+						"\nThe 'conll' format is token-per-line, blank spaces separating tweets."+
+				"\n");
+
 		if (extra != null) {
 			System.out.println("ERROR: " + extra);
 		}

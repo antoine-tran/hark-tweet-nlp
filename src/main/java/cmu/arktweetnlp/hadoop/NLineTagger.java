@@ -1,4 +1,4 @@
-package cmu.arktweetnlp;
+package cmu.arktweetnlp.hadoop;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,6 +21,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import cmu.arktweetnlp.Tagger;
 import cmu.arktweetnlp.Tagger.TaggedToken;
 
 /** One hadoop job for reading big tweet data from text file, where

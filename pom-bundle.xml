@@ -32,7 +32,6 @@
 		</testResources>   
 		
 		<plugins>
-            <!-- 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -51,49 +50,7 @@
                     </configuration>
                   </execution>
                 </executions>
-            </plugin>
-            -->		
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.6</version>
-				
-				<!-- Different configurations for different deployment scenarios -->
-				<executions>				    
-				
-				    <!-- Configuration 1: centralized scenario
-					<execution>
-						<phase>package</phase>
-						<id>shade-centralized</id>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>cmu.arktweetnlp.RunTagger</mainClass>
-								</transformer>
-							</transformers>
-						</configuration>
-					</execution> -->
-					
-					 <!-- Configuration 2: Hadoop-based scenario where input is plain-text --> 
-					<execution>
-						<phase>package</phase>
-						<id>shade-hadoop</id>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>cmu.arktweetnlp.NLineTagger</mainClass>
-								</transformer>
-							</transformers>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>	
+            </plugin>         	
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -102,23 +59,7 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.1</version>
-                <configuration>
-                    <archive>
-                        <index>true</index>
-                        <manifest>
-                            <mainClass>cmu.arktweetnlp.RunTagger</mainClass>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                    <outputDirectory>${project.basedir}/bin</outputDirectory>
-                </configuration>
-            </plugin>
-            
+            </plugin>           
             <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
@@ -177,23 +118,13 @@
         		<exclusion>	
 					<groupId>org.apache.lucene</groupId>
 					<artifactId>lucene-analyzers</artifactId>
-        		</exclusion>
-        		<exclusion>	<!-- JSR-305 is already bundled with tuan4j-core -->
-          			<groupId>com.google.code.findbugs</groupId>
-          			<artifactId>jsr305</artifactId>
-        		</exclusion>
+        		</exclusion>        		
       		</exclusions> 
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>13.0.1</version>
-            <exclusions>
-        		<exclusion>	<!-- JSR-305 is already bundled with tuan4j-core -->
-          			<groupId>com.google.code.findbugs</groupId>
-          			<artifactId>jsr305</artifactId>
-        		</exclusion>
-      		</exclusions> 
+            <version>13.0.1</version>            
         </dependency>
         <dependency>
 	        <groupId>net.sf.trove4j</groupId>
