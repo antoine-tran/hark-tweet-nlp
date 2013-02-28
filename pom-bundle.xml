@@ -45,7 +45,7 @@
                     </goals>
                     <configuration>
                       <sources>
-                          <source>${project.basedir}/src</source>
+                          <source>${project.basedir}/src/main</source>
                       </sources>
                     </configuration>
                   </execution>

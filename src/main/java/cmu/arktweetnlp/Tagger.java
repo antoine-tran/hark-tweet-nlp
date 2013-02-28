@@ -44,7 +44,7 @@ public class Tagger {
 	 **/
 	public static class TaggedToken {
 		public String token;
-		public String tag;
+		public char tag;
 	}
 
 
@@ -66,7 +66,7 @@ public class Tagger {
 		for (int t=0; t < sentence.T(); t++) {
 			TaggedToken tt = new TaggedToken();
 			tt.token = tokens.get(t);
-			tt.tag = model.labelVocab.name( ms.labels[t] );
+			tt.tag = model.labelVocab.name( ms.labels[t] ).charAt(0);
 			taggedTokens.add(tt);
 		}
 
