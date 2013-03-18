@@ -32,7 +32,6 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	private static void usage(String... msg) {
