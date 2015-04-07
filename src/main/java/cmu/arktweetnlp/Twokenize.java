@@ -1,5 +1,9 @@
 package cmu.arktweetnlp;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.regex.*;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +13,8 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * Twokenize -- a tokenizer designed for Twitter text in English and some other European languages.
+ * This is the Java version. If you want the old Python version, see: http://github.com/brendano/tweetmotif
+ * 
  * This tokenizer code has gone through a long history:
  *
  * (1) Brendan O'Connor wrote original version in Python, http://github.com/brendano/tweetmotif
@@ -327,4 +333,22 @@ public class Twokenize {
         List<String> tokens = tokenize(normalizeTextForTagger(text));
         return tokens;
     }
+
+    /** Tokenizes tweet texts on standard input, tokenizations on standard output.  Input and output UTF-8. */
+    public static void main(String[] args) throws IOException {
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
+        PrintStream output = new PrintStream(System.out, true, "UTF-8");
+    	String line;
+    	while ( (line = input.readLine()) != null) {
+    		List<String> toks = tokenizeRawTweetText(line);
+    		for (int i=0; i<toks.size(); i++) {
+    			output.print(toks.get(i));
+    			if (i < toks.size()-1) {
+    				output.print(" ");
+    			}
+    		}
+    		output.print("\n");
+    	}
+    }
+    
 }

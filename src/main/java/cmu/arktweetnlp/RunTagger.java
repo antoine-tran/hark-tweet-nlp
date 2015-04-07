@@ -3,11 +3,15 @@ package cmu.arktweetnlp;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import cmu.arktweetnlp.Tagger;
+import cmu.arktweetnlp.Twokenize;
 import cmu.arktweetnlp.impl.ModelSentence;
 import cmu.arktweetnlp.impl.Sentence;
 import cmu.arktweetnlp.impl.features.WordClusterPaths;
@@ -31,7 +35,8 @@ public class RunTagger {
 	int inputField = 1;
 
 	String inputFilename;
-
+	String outputFilename;
+	
 	/** Can be either filename or resource name **/
 	String modelFilename = "/cmu/arktweetnlp/model.20120919";
 
@@ -334,6 +339,13 @@ public class RunTagger {
 			} else if (args[i].equals("--output-format")) {
 				tagger.outputFormat = args[i+1];
 				i += 2;
+			} else if (args[i].equals("--output-file")) {
+				tagger.outputFilename = args[i+1];
+				tagger.outputStream = new PrintStream(new FileOutputStream(tagger.outputFilename, true));
+				i += 2;
+			} else if (args[i].equals("--output-overwrite")) {
+				tagger.outputStream = new PrintStream(new FileOutputStream(tagger.outputFilename, false));
+				i += 1;
 			} else if (args[i].equals("--input-field")) {
 				tagger.inputField = Integer.parseInt(args[i+1]);
 				i += 2;
@@ -428,42 +440,43 @@ public class RunTagger {
 
 	public static void usage(String extra) {
 		System.out.println(
-				"RunTagger [options] [ExamplesFilename]" +
-						"\n  runs the CMU ARK Twitter tagger on tweets from ExamplesFilename, " +
-						"\n  writing taggings to standard output. Listens on stdin if no input filename." +
-						"\n\nOptions:" +
-						"\n  --model <Filename>        Specify model filename. (Else use built-in.)" +
-						"\n  --just-tokenize           Only run the tokenizer; no POS tags." +
-						"\n  --quiet                   Quiet: no output" +
-						"\n  --input-format <Format>   Default: auto" +
-						"\n                            Options: json, text, conll" +
-						"\n  --output-format <Format>  Default: automatically decide from input format." +
-						"\n                            Options: pretsv, conll" +
-						"\n  --input-field NUM         Default: 1" +
-						"\n                            Which tab-separated field contains the input" +
-						"\n                            (1-indexed, like unix 'cut')" +
-						"\n                            Only for {json, text} input formats." +
-						"\n  --word-clusters <File>    Alternate word clusters file (see FeatureExtractor)" +
-						"\n  --no-confidence           Don't output confidence probabilities" +
-						"\n  --decoder <Decoder>       Change the decoding algorithm (default: greedy)" +
-						"\n" +
-						"\nTweet-per-line input formats:" +
-						"\n   json: Every input line has a JSON object containing the tweet," +
-						"\n         as per the Streaming API. (The 'text' field is used.)" +
-						"\n   text: Every input line has the text for one tweet." +
-						"\nWe actually assume input lines are TSV and the tweet data is one field."+
-						"\n(Therefore tab characters are not allowed in tweets." +
-						"\nTwitter's own JSON formats guarantee this;" +
-						"\nif you extract the text yourself, you must remove tabs and newlines.)" +
-						"\nTweet-per-line output format is" +
-						"\n   pretsv: Prepend the tokenization and tagging as new TSV fields, " +
-						"\n           so the output includes a complete copy of the input." +
-						"\nBy default, three TSV fields are prepended:" +
-						"\n   Tokenization \\t POSTags \\t Confidences \\t (original data...)" +
-						"\nThe tokenization and tags are parallel space-separated lists." +
-						"\nThe 'conll' format is token-per-line, blank spaces separating tweets."+
-				"\n");
-
+"RunTagger [options] [ExamplesFilename]" +
+"\n  runs the CMU ARK Twitter tagger on tweets from ExamplesFilename, " +
+"\n  writing taggings to standard output. Listens on stdin if no input filename." +
+"\n\nOptions:" +
+"\n  --model <Filename>        Specify model filename. (Else use built-in.)" +
+"\n  --just-tokenize           Only run the tokenizer; no POS tags." +
+"\n  --quiet                   Quiet: no output" +
+"\n  --input-format <Format>   Default: auto" +
+"\n                            Options: json, text, conll" +
+"\n  --output-format <Format>  Default: automatically decide from input format." +
+"\n                            Options: pretsv, conll" +
+"\n  --output-file <Filename>  Save output to specified file (Else output to stdout)" +
+"\n  --output-overwrite        Overwrite output-file (default: append)" +
+"\n  --input-field NUM         Default: 1" +
+"\n                            Which tab-separated field contains the input" +
+"\n                            (1-indexed, like unix 'cut')" +
+"\n                            Only for {json, text} input formats." +
+"\n  --word-clusters <File>    Alternate word clusters file (see FeatureExtractor)" +
+"\n  --no-confidence           Don't output confidence probabilities" +
+"\n  --decoder <Decoder>       Change the decoding algorithm (default: greedy)" +
+"\n" +
+"\nTweet-per-line input formats:" +
+"\n   json: Every input line has a JSON object containing the tweet," +
+"\n         as per the Streaming API. (The 'text' field is used.)" +
+"\n   text: Every input line has the text for one tweet." +
+"\nWe actually assume input lines are TSV and the tweet data is one field."+
+"\n(Therefore tab characters are not allowed in tweets." +
+"\nTwitter's own JSON formats guarantee this;" +
+"\nif you extract the text yourself, you must remove tabs and newlines.)" +
+"\nTweet-per-line output format is" +
+"\n   pretsv: Prepend the tokenization and tagging as new TSV fields, " +
+"\n           so the output includes a complete copy of the input." +
+"\nBy default, three TSV fields are prepended:" +
+"\n   Tokenization \\t POSTags \\t Confidences \\t (original data...)" +
+"\nThe tokenization and tags are parallel space-separated lists." +
+"\nThe 'conll' format is token-per-line, blank spaces separating tweets."+
+"\n");
 		if (extra != null) {
 			System.out.println("ERROR: " + extra);
 		}

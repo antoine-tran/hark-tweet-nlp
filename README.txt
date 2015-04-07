@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 HARK Tweet v0.3.2.1
 
 This is the distributed version of CMU ARK Twitter Part-of-Speech Tagger v0.3.2 in Hadoop setting. HARK
@@ -11,16 +12,24 @@ and related research is at http://www.ark.cs.cmu.edu/TweetNLP/.
 
 
 Centralized setting (derived from original repository at https://github.com/brendano/ark-tweet-nlp):
-===========
 
-Requires Java 6.  To run the tagger from a unix shell:
+CMU ARK Twitter Part-of-Speech Tagger v0.3.2
+http://www.ark.cs.cmu.edu/TweetNLP/
 
-    ./scripts/runTagger.sh examples/example_tweets.txt
+Basic usage for released version
 
+
+Requires Java 6.  To run the tagger on example data, try:
+
+java -Xmx500m -jar ark-tweet-nlp-0.3.2.jar examples/example_tweets.txt
+
+where the jar file is the one included in the release download.
 The tagger outputs tokens, predicted part-of-speech tags, and confidences.
-See:
+Use the "--help" flag for more information.  On Unix systems, "./runTagger.sh"
+invokes the tagger; e.g.
 
-    ./scripts/runTagger.sh --help
+    ./runTagger.sh examples/example_tweets.txt
+    ./runTagger.sh --help
 
 We also include a script that invokes just the tokenizer:
 
@@ -30,7 +39,6 @@ You may have to adjust the parameters to "java" depending on your system.
 
 
 Distributed setting
-==========
 .. (to be updated)
 
 
