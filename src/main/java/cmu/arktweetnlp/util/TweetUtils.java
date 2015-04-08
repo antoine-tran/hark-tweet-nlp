@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import cmu.arktweetnlp.Tagger;
-import cmu.arktweetnlp.Tagger.TaggedToken;
+import cmu.arktweetnlp.TaggedToken;
 
 /**
  * utility methods for handling tweet contents 

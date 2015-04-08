@@ -22,7 +22,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import cmu.arktweetnlp.Tagger;
-import cmu.arktweetnlp.Tagger.TaggedToken;
+import cmu.arktweetnlp.TaggedToken;
 
 /** One hadoop job for reading big tweet data from text file, where
  * each single line corresponds to one tweet. The output is one plain-text

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import cmu.arktweetnlp.Tagger.TaggedToken;
+import cmu.arktweetnlp.TaggedToken;
 
 public class TestTagger {
 	

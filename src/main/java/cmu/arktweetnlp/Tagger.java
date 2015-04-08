@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import cmu.arktweetnlp.impl.Model;
 import cmu.arktweetnlp.impl.ModelSentence;
 import cmu.arktweetnlp.impl.Sentence;
@@ -38,25 +41,16 @@ public class Tagger {
 		model = Model.loadModelFromText(modelFilename);
 		featureExtractor = new FeatureExtractor(model, false);
 	}
-
-	/**
-	 * One token and its tag.
-	 **/
-	public static class TaggedToken {
-		public String token;
-		public char tag;
-	}
-
-
+	
 	/**
 	 * Run the tokenizer and tagger on one tweet's text.
 	 **/
 	public List<TaggedToken> tokenizeAndTag(String text) {
 		if (model == null) throw new RuntimeException("Must loadModel() first before tagging anything");
-		List<String> tokens = Twokenize.tokenizeRawTweetText(text);
+		List<TaggedToken> tokens = Twokenize.simpleTokenizeWithOffset(text);
 
 		Sentence sentence = new Sentence();
-		sentence.tokens = tokens;
+		sentence.tokens = Lists.transform(tokens, token2StringFunc);
 		ModelSentence ms = new ModelSentence(sentence.T());
 		featureExtractor.computeFeatures(sentence, ms);
 		model.greedyDecode(ms, false);
@@ -64,8 +58,7 @@ public class Tagger {
 		ArrayList<TaggedToken> taggedTokens = new ArrayList<TaggedToken>();
 
 		for (int t=0; t < sentence.T(); t++) {
-			TaggedToken tt = new TaggedToken();
-			tt.token = tokens.get(t);
+			TaggedToken tt = tokens.get(t);
 			tt.tag = model.labelVocab.name( ms.labels[t] ).charAt(0);
 			taggedTokens.add(tt);
 		}
@@ -93,5 +86,12 @@ public class Tagger {
 			System.out.printf("%s\t%s\n", token.tag, token.token);
 		}
 	} */
+	
+	
+	private static final Function<Token, String> token2StringFunc = new Function<Token, String>() {
+		public String apply(Token input) {
+			return input.token;
+		}
+	};
 
 }

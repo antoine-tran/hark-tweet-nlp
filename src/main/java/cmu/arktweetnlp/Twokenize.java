@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import tuan.collections.IntArrayList;
+
 /**
  * Twokenize -- a tokenizer designed for Twitter text in English and some other European languages.
  * This is the Java version. If you want the old Python version, see: http://github.com/brendano/tweetmotif
@@ -280,6 +282,81 @@ public class Twokenize {
         
         return zippedStr;
     }  
+    
+    
+    // The main work of tokenizing a tweet.
+    public static List<TaggedToken> simpleTokenizeWithOffset(String splitPunctText) {
+
+        int textLength = splitPunctText.length();
+        
+        // BTO: the logic here got quite convoluted via the Scala porting detour
+        // It would be good to switch back to a nice simple procedural style like in the Python version
+        // ... Scala is such a pain.  Never again.
+
+        // Find the matches for subsequences that should be protected,
+        // e.g. URLs, 1.0, U.N.K.L.E., 12:53
+        Matcher matches = Protected.matcher(splitPunctText);
+        //Storing as List[List[String]] to make zip easier later on 
+        List<List<TaggedToken>> bads = new ArrayList<List<TaggedToken>>();	//linked list?
+        List<int[]> badSpans = new ArrayList<int[]>();
+        while(matches.find()){
+            // The spans of the "bads" should not be split.
+            if (matches.start() != matches.end()){ //unnecessary?
+                List<TaggedToken> bad = new ArrayList<TaggedToken>(1);
+                bad.add(new TaggedToken(splitPunctText.substring(matches.start(),matches.end()), matches.start()));
+                bads.add(bad);
+                badSpans.add(new int[]{matches.start(),matches.end()});
+            }
+        }
+
+        // Create a list of indices to create the "goods", which can be
+        // split. We are taking "bad" spans like 
+        //     List((2,5), (8,10)) 
+        // to create 
+        ///    List(0, 2, 5, 8, 10, 12)
+        // where, e.g., "12" here would be the textLength
+        // has an even length and no indices are the same
+        IntArrayList indices = new IntArrayList(2+2*badSpans.size());
+        indices.add(0);
+        for(int[] p:badSpans){
+            indices.add(p[0]);
+            indices.add(p[1]);
+        }
+        indices.add(textLength);
+
+        // Group the indices and map them to their respective portion of the string
+        List<List<TaggedToken>> splitGoods = new ArrayList<List<TaggedToken>>(indices.size()/2);
+        for (int i=0; i<indices.size(); i+=2) {
+            String goodstr = splitPunctText.substring(indices.get(i),indices.get(i+1));
+            List<String> splitstr = Arrays.asList(goodstr.trim().split(" "));
+            List<TaggedToken> splitTokens = new ArrayList<TaggedToken>(splitstr.size());
+            int offset = indices.get(i);
+            for (int j=0; j<splitstr.size(); j++) {
+            	offset += (j>0) ? splitstr.get(j-1).length()+1 : 0;
+            	splitTokens.add(new TaggedToken(splitstr.get(j),offset));
+            }
+            splitGoods.add(splitTokens);
+        }
+
+        //  Reinterpolate the 'good' and 'bad' Lists, ensuring that
+        //  additonal tokens from last good item get included
+        List<TaggedToken> zippedStr= new ArrayList<TaggedToken>();
+        int i;
+        for(i=0; i < bads.size(); i++) {
+            zippedStr = addAllnonemptyTokens(zippedStr,splitGoods.get(i));
+            zippedStr = addAllnonemptyTokens(zippedStr,bads.get(i));
+        }
+        zippedStr = addAllnonemptyTokens(zippedStr,splitGoods.get(i));
+        
+        // BTO: our POS tagger wants "ur" and "you're" to both be one token.
+        // Uncomment to get "you 're"
+        /*ArrayList<String> splitStr = new ArrayList<String>(zippedStr.size());
+        for(String tok:zippedStr)
+        	splitStr.addAll(splitToken(tok));
+        zippedStr=splitStr;*/
+        
+        return zippedStr;
+    } 
 
     private static List<String> addAllnonempty(List<String> master, List<String> smaller){
         for (String s : smaller){
@@ -289,6 +366,17 @@ public class Twokenize {
         }
         return master;
     }
+    
+    private static List<TaggedToken> addAllnonemptyTokens(List<TaggedToken> master, List<TaggedToken> smaller){
+        for (TaggedToken s : smaller){
+            String strim = s.toString().trim();
+            if (strim.length() > 0)
+            	s.token = strim;
+                master.add(s);
+        }
+        return master;
+    }
+    
     /** "foo   bar " => "foo bar" */
     public static String squeezeWhitespace (String input){
         return Whitespace.matcher(input).replaceAll(" ").trim();
@@ -309,6 +397,11 @@ public class Twokenize {
     /** Assume 'text' has no HTML escaping. **/
     public static List<String> tokenize(String text){
         return simpleTokenize(squeezeWhitespace(text));
+    }
+    
+    /** Assume 'text' has no HTML escaping. **/
+    public static List<TaggedToken> tokenizeWithOffset(String text){
+        return simpleTokenizeWithOffset(squeezeWhitespace(text));
     }
 
 
@@ -333,6 +426,12 @@ public class Twokenize {
         List<String> tokens = tokenize(normalizeTextForTagger(text));
         return tokens;
     }
+    
+    /** Tokenize raw tweet and keep the offsets of the tokens */
+    public static List<TaggedToken> tokenizeRawTweetTextWithOffset(String text) {
+        return tokenizeWithOffset(normalizeTextForTagger(text));
+    }
+
 
     /** Tokenizes tweet texts on standard input, tokenizations on standard output.  Input and output UTF-8. */
     public static void main(String[] args) throws IOException {
