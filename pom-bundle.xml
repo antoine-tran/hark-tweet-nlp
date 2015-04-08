@@ -4,7 +4,7 @@
     <groupId>edu.cmu.cs</groupId>
     <artifactId>hark-tweet-nlp</artifactId>
     <packaging>jar</packaging>
-    <version>0.3.2.1</version>
+    <version>0.3.2.2</version>
     <name>HARK TweetNLP: Customized Twitter POS tagger</name>
     <description>Customized POS tagger from CMU Ark Tweek NLP</description>
     <url>http://www.ark.cs.cmu.edu/TweetNLP/</url>
